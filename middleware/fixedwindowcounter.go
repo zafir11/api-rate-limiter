@@ -6,19 +6,19 @@ import (
 )
 
 type FixedWindow struct {
-	windowSize       time.Duration
-	incomingRequests float64
-	maxRequest       float64
-	resetTime        time.Time
-	mu               sync.Mutex
+	windowSize        time.Duration
+	requestsThreshold float64
+	maxRequest        float64
+	resetTime         time.Time
+	mu                sync.Mutex
 }
 
 func NewFixedWindow(windowSize time.Duration, maxRequest float64) *FixedWindow {
 	return &FixedWindow{
-		windowSize:       windowSize,
-		incomingRequests: 0,
-		maxRequest:       maxRequest,
-		resetTime:        time.Now().Add(windowSize),
+		windowSize:        windowSize,
+		requestsThreshold: 0,
+		maxRequest:        maxRequest,
+		resetTime:         time.Now().Add(windowSize),
 	}
 }
 func (fw *FixedWindow) Allow() bool {
@@ -27,12 +27,12 @@ func (fw *FixedWindow) Allow() bool {
 	now := time.Now()
 	// reset the counter if the pass the window
 	if now.After(fw.resetTime) {
-		fw.incomingRequests = 0
+		fw.requestsThreshold = 0
 		fw.resetTime = now.Add(fw.windowSize)
 	}
 	// check for max request
-	if fw.incomingRequests <= fw.maxRequest{
-		fw.incomingRequests++
+	if fw.requestsThreshold <= fw.maxRequest {
+		fw.requestsThreshold++
 		return true
 	}
 	return false

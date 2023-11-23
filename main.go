@@ -9,7 +9,7 @@ import (
 
 func main() {
 	app := fiber.New()
-	fixedWindowLimiter := middleware.NewFixedWindow(time.Minute, 5)
+	fixedWindowLimiter := middleware.NewSlidingWindow(time.Minute, 5)
 
 	// Middleware to perform rate limiting
 	app.Use(func(c *fiber.Ctx) error {
